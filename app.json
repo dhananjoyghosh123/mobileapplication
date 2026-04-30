@@ -1,0 +1,25 @@
+{
+  "expo": {
+    "name": "Restaurant Mobile App",
+    "slug": "restaurant-mobile-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#f7f5f2"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#f7f5f2"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
