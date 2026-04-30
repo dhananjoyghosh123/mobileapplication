@@ -1,38 +1,44 @@
-import React from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native';
 
-const categories = ['Pizza', 'Burgers', 'Sushi', 'Desserts'];
+const categories = ['All', 'Pizza', 'Burgers', 'Sushi', 'Desserts'];
 
-const featuredRestaurants = [
-  {
-    name: 'Urban Spice Kitchen',
-    cuisine: 'Indian Fusion',
-    rating: 4.8,
-    eta: '20-30 min',
-  },
-  {
-    name: 'Coastal Bowl',
-    cuisine: 'Seafood',
-    rating: 4.6,
-    eta: '25-35 min',
-  },
-  {
-    name: 'Bella Napoli',
-    cuisine: 'Italian',
-    rating: 4.7,
-    eta: '15-25 min',
-  },
+const restaurants = [
+  { id: 1, name: 'Urban Spice Kitchen', cuisine: 'Indian Fusion', rating: 4.8, eta: '20-30 min' },
+  { id: 2, name: 'Coastal Bowl', cuisine: 'Seafood', rating: 4.6, eta: '25-35 min' },
+  { id: 3, name: 'Bella Napoli', cuisine: 'Italian', rating: 4.7, eta: '15-25 min' },
+  { id: 4, name: 'Burger Forge', cuisine: 'American', rating: 4.5, eta: '18-28 min' },
+  { id: 5, name: 'Sakura Street', cuisine: 'Japanese', rating: 4.9, eta: '20-30 min' },
 ];
 
 export default function App() {
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [searchText, setSearchText] = useState('');
+
+  const filteredRestaurants = useMemo(() => {
+    return restaurants.filter((restaurant) => {
+      const categoryMatch =
+        selectedCategory === 'All' ||
+        restaurant.cuisine.toLowerCase().includes(selectedCategory.toLowerCase());
+
+      const searchMatch =
+        searchText.trim() === '' ||
+        restaurant.name.toLowerCase().includes(searchText.toLowerCase()) ||
+        restaurant.cuisine.toLowerCase().includes(searchText.toLowerCase());
+
+      return categoryMatch && searchMatch;
+    });
+  }, [searchText, selectedCategory]);
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" />
@@ -41,78 +47,72 @@ export default function App() {
         <Text style={styles.subHeader}>Find your next meal</Text>
 
         <View style={styles.searchCard}>
-          <Text style={styles.searchText}>🔎 Search restaurants or dishes</Text>
+          <TextInput
+            placeholder="Search restaurants or dishes"
+            placeholderTextColor="#8a8a8a"
+            value={searchText}
+            onChangeText={setSearchText}
+            style={styles.searchInput}
+          />
         </View>
 
         <Text style={styles.sectionTitle}>Categories</Text>
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesRow}>
-          {categories.map((category) => (
-            <TouchableOpacity key={category} style={styles.categoryPill}>
-              <Text style={styles.categoryText}>{category}</Text>
-            </TouchableOpacity>
-          ))}
+          {categories.map((category) => {
+            const isActive = selectedCategory === category;
+            return (
+              <TouchableOpacity
+                key={category}
+                onPress={() => setSelectedCategory(category)}
+                style={[styles.categoryPill, isActive && styles.categoryPillActive]}
+              >
+                <Text style={[styles.categoryText, isActive && styles.categoryTextActive]}>{category}</Text>
+              </TouchableOpacity>
+            );
+          })}
         </ScrollView>
 
-        <Text style={styles.sectionTitle}>Featured Restaurants</Text>
-        {featuredRestaurants.map((restaurant) => (
-          <View key={restaurant.name} style={styles.restaurantCard}>
-            <Text style={styles.restaurantName}>{restaurant.name}</Text>
-            <Text style={styles.restaurantMeta}>{restaurant.cuisine}</Text>
-            <View style={styles.metaRow}>
-              <Text style={styles.metaBadge}>⭐ {restaurant.rating}</Text>
-              <Text style={styles.metaBadge}>🛵 {restaurant.eta}</Text>
-            </View>
-            <TouchableOpacity style={styles.ctaButton}>
-              <Text style={styles.ctaButtonText}>View Menu</Text>
-            </TouchableOpacity>
+        <Text style={styles.sectionTitle}>Restaurants</Text>
+        {filteredRestaurants.length === 0 ? (
+          <View style={styles.emptyCard}>
+            <Text style={styles.emptyText}>No restaurants match your filters.</Text>
           </View>
-        ))}
+        ) : (
+          filteredRestaurants.map((restaurant) => (
+            <View key={restaurant.id} style={styles.restaurantCard}>
+              <Text style={styles.restaurantName}>{restaurant.name}</Text>
+              <Text style={styles.restaurantMeta}>{restaurant.cuisine}</Text>
+              <View style={styles.metaRow}>
+                <Text style={styles.metaBadge}>⭐ {restaurant.rating}</Text>
+                <Text style={styles.metaBadge}>🛵 {restaurant.eta}</Text>
+              </View>
+              <TouchableOpacity style={styles.ctaButton}>
+                <Text style={styles.ctaButtonText}>View Menu</Text>
+              </TouchableOpacity>
+            </View>
+          ))
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f7f5f2',
-  },
-  content: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  header: {
-    fontSize: 28,
-    fontWeight: '700',
-    color: '#1b1b1b',
-  },
-  subHeader: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 4,
-    marginBottom: 20,
-  },
+  container: { flex: 1, backgroundColor: '#f7f5f2' },
+  content: { paddingHorizontal: 20, paddingVertical: 16 },
+  header: { fontSize: 28, fontWeight: '700', color: '#1b1b1b' },
+  subHeader: { fontSize: 16, color: '#666', marginTop: 4, marginBottom: 20 },
   searchCard: {
     backgroundColor: '#fff',
-    padding: 16,
+    paddingHorizontal: 16,
     borderRadius: 14,
     marginBottom: 24,
     borderWidth: 1,
     borderColor: '#ece9e2',
   },
-  searchText: {
-    fontSize: 15,
-    color: '#8a8a8a',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: '#242424',
-    marginBottom: 12,
-  },
-  categoriesRow: {
-    marginBottom: 24,
-  },
+  searchInput: { fontSize: 15, color: '#222', paddingVertical: 14 },
+  sectionTitle: { fontSize: 20, fontWeight: '600', color: '#242424', marginBottom: 12 },
+  categoriesRow: { marginBottom: 24 },
   categoryPill: {
     backgroundColor: '#fff',
     borderWidth: 1,
@@ -122,10 +122,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     marginRight: 10,
   },
-  categoryText: {
-    color: '#3d3d3d',
-    fontWeight: '500',
-  },
+  categoryPillActive: { backgroundColor: '#d9480f', borderColor: '#d9480f' },
+  categoryText: { color: '#3d3d3d', fontWeight: '500' },
+  categoryTextActive: { color: '#fff' },
   restaurantCard: {
     backgroundColor: '#fff',
     borderRadius: 16,
@@ -134,21 +133,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ece9e2',
   },
-  restaurantName: {
-    fontSize: 18,
-    fontWeight: '700',
-    color: '#212121',
-  },
-  restaurantMeta: {
-    fontSize: 14,
-    color: '#717171',
-    marginTop: 4,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 12,
-  },
+  restaurantName: { fontSize: 18, fontWeight: '700', color: '#212121' },
+  restaurantMeta: { fontSize: 14, color: '#717171', marginTop: 4 },
+  metaRow: { flexDirection: 'row', gap: 8, marginTop: 12 },
   metaBadge: {
     backgroundColor: '#faf8f4',
     color: '#555',
@@ -165,9 +152,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  ctaButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 14,
+  ctaButtonText: { color: '#fff', fontWeight: '700', fontSize: 14 },
+  emptyCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ece9e2',
+    padding: 16,
   },
+  emptyText: { color: '#666' },
 });

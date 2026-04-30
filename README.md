@@ -1,18 +1,26 @@
 # Restaurant Mobile Application
 
-A simple Expo React Native restaurant discovery app UI.
+An Expo React Native restaurant discovery mobile app.
 
-## Features
-- Search bar placeholder
-- Food categories row
-- Featured restaurants cards with rating and ETA
+## What is included
+- Search input for restaurant and cuisine names
+- Category filters (All, Pizza, Burgers, Sushi, Desserts)
+- Dynamic restaurant listing with rating + ETA badges
+- Empty-state message when filters return no matches
 
-## Run locally
+## Quick start
 1. Install dependencies:
    ```bash
    npm install
    ```
-2. Start Expo:
+2. Start development server:
    ```bash
    npm start
    ```
+3. Open on emulator/device using Expo QR code.
+
+## Scripts
+- `npm start`
+- `npm run android`
+- `npm run ios`
+- `npm run web`
